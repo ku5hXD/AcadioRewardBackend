@@ -83,10 +83,6 @@ app.post('/historyData', async (req, res) => {
 
 app.post('/userRedeemedReward', async (req, res) => {
 
-    req.body.uid
-    req.body.rid
-    req.body.type
-
     try {
 
         if (req.body.type === "PhysicalThing") {
