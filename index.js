@@ -92,6 +92,8 @@ app.post('/getRewardData', async (req, res) => {
 app.post('/historyData', async (req, res) => {
 
     try {
+
+        const userData = await User.findOne({ _id: req.body.uid });
         // 4 (in limit) --> number of data you want per request
         const historyData = await History.find({ uid: req.body.uid }).skip(req.body.mid).limit(4)
         // console.log(historyData)
@@ -103,7 +105,7 @@ app.post('/historyData', async (req, res) => {
             historyData.forEach(async (value, index, historyData) => {
 
                 const rewardData = await Reward.findOne({ rid: value.rid, type: value.type })
-                historyData[index] = { ...value._doc, rewardName: rewardData.name, rewardImage: rewardData.image, requiredXP: rewardData.requiredXP }
+                historyData[index] = { ...value._doc, user_name: userData.name, profile_pic: userData.profile_pic, rewardName: rewardData.name, rewardImage: rewardData.image, requiredXP: rewardData.requiredXP }
                 countLength++;
                 if (countLength === historyData.length) {
                     res.send(historyData);
@@ -145,12 +147,9 @@ app.post('/userRedeemedReward', async (req, res) => {
         await Reward.findOneAndUpdate({ rid: req.body.rid, type: req.body.type }, { $inc: { quantity: -1 } })
 
         // adding data to history collection
-        const userData = await User.findOne({ _id: req.body.uid });
 
         var history = new History({
             uid: req.body.uid,
-            user_name: userData.name,
-            profile_pic: userData.profile_pic,
             rid: req.body.rid,
             type: req.body.type,
             date: new Date()
